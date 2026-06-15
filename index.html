@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>База знаний Департамент BIM 2026</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div class="brandline"><span class="brand-mark">АСКОН</span><span class="brand-caption">База знаний</span></div>
+      <h1>База знаний Департамент BIM 2026</h1>
+      <p>Локальный сайт-каталог для быстрого поиска инструкций, журналов, ссылок и рабочих материалов. Файл можно открыть на любом ПК через браузер</p>
+    </section>
+
+    <section class="toolbar" aria-label="Фильтры базы знаний">
+      <div class="toolbar-row toolbar-row-primary">
+        <input id="search" type="search" placeholder="Поиск: Renga, заявка, обучение, база, ПО..." />
+        <div class="view-toggle" aria-label="Переключение вида материалов">
+          <button type="button" class="view-btn active" id="viewCards" data-view="cards">▦ Плитка</button>
+          <button type="button" class="view-btn" id="viewList" data-view="list">☰ Строки</button>
+        </div>
+        <button class="favorite-filter" id="favoritesOnlyBtn" type="button">★ Избранное</button>
+      </div>
+      <div class="toolbar-row toolbar-row-filters">
+        <select id="sectionFilter"><option value="">Все разделы</option></select>
+        <select id="subsectionFilter"><option value="">Все подразделы</option></select>
+        <select id="typeFilter"><option value="">Все типы</option></select>
+        <select id="statusFilter" aria-label="Фильтр по статусу">
+          <option value="">Все статусы</option>
+          <option value="Актуально">Актуально</option>
+          <option value="Требует проверки">Требует проверки</option>
+          <option value="Устарело">Устарело</option>
+          <option value="В разработке">В разработке</option>
+        </select>
+        <select id="sortFilter" aria-label="Сортировка материалов">
+          <option value="default">Сортировка: исходный порядок</option>
+          <option value="title">По названию А–Я</option>
+          <option value="section">По разделу и подразделу</option>
+          <option value="type">По типу материала</option>
+          <option value="status">По статусу</option>
+        </select>
+        <button class="reset" id="resetBtn">Сбросить фильтры</button>
+      </div>
+    </section>
+
+    <section class="summary">
+      <div class="metric"><div class="num" id="totalCount">0</div><div class="label">Всего материалов</div></div>
+      <div class="metric"><div class="num" id="visibleCount">0</div><div class="label">Показано сейчас</div></div>
+      <div class="metric"><div class="num" id="sectionCount">0</div><div class="label">Разделов</div></div>
+      <div class="metric"><div class="num" id="checkCount">0</div><div class="label">Требуют проверки</div></div>
+    </section>
+
+    <section class="layout">
+      <aside class="side">
+        <h3>Разделы</h3>
+        <div id="sectionList"></div>
+        <div class="subsection-panel">
+          <h3>Подразделы</h3>
+          <div id="subsectionList"></div>
+        </div>
+        <div class="recent-panel">
+          <h3>Недавно открытые</h3>
+          <div id="recentList" class="recent-list"></div>
+        </div>
+      </aside>
+      <section>
+        <div class="content-head">
+          <div>
+            <h2 id="contentTitle">Все материалы</h2>
+            <div class="muted" id="contentSub">Выберите раздел или воспользуйтесь поиском.</div>
+          </div>
+        </div>
+        <div id="cards" class="grid"></div>
+      </section>
+    </section>
+
+    <footer class="footer">
+      <div>Сформировано на основе базы знаний Департамента BIM. Для обновления материалов обратитесь к специалисту. Версия 1.0</div>
+      <div class="admin-footer-link"><a href="admin.html">Админ-панель генерации записи</a></div>
+      <div class="developer-signature">© kartashov_ma 2026 ©</div>
+    </footer>
+  </main>
+
+  <div id="modalBackdrop" class="modal-backdrop" role="dialog" aria-modal="true">
+    <div class="modal">
+      <div class="modal-header">
+        <button class="close" id="closeModal">Закрыть</button>
+        <h2 id="modalTitle"></h2>
+        <div id="modalMeta"></div>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+  <script src="data.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

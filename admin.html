@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Админ-панель генерации записи — База знаний BIM</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .admin-page { max-width: 1280px; margin: 0 auto; padding: 28px; }
+    .admin-hero { min-height: 160px; }
+    .admin-nav { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; position: relative; z-index: 2; }
+    .admin-nav a, .admin-nav button { width: auto; display: inline-flex; align-items: center; justify-content: center; padding: 10px 14px; border-radius: 12px; font-weight: 900; }
+    .admin-nav a { background: #fff; color: var(--accent-dark); border: 1px solid rgba(255,255,255,.45); }
+    .admin-nav a:hover { text-decoration: none; }
+    .admin-grid { display: grid; grid-template-columns: minmax(0, 1fr) 420px; gap: 18px; margin-top: 22px; align-items: start; }
+    .admin-card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow-soft); }
+    .admin-card h2 { margin: 0 0 14px; font-size: 22px; }
+    .admin-card h3 { margin: 18px 0 10px; font-size: 16px; }
+    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .form-field { display: flex; flex-direction: column; gap: 6px; }
+    .form-field.full { grid-column: 1 / -1; }
+    .form-field label { font-size: 13px; color: var(--muted); font-weight: 900; }
+    .form-field input, .form-field select, .form-field textarea { width: 100%; border: 1px solid var(--line); border-radius: 12px; padding: 11px 12px; font-size: 14px; background: #fff; color: var(--text); }
+    .form-field textarea { min-height: 82px; resize: vertical; line-height: 1.45; }
+    .id-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+    .small-btn { width: auto; white-space: nowrap; padding: 10px 12px; border-radius: 12px; background: #f7f7f8; border: 1px solid var(--line); color: var(--text); font-weight: 900; }
+    .admin-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+    .admin-actions button, .admin-actions a { width: auto; padding: 11px 14px; border-radius: 12px; font-weight: 900; display: inline-flex; align-items: center; justify-content: center; }
+    .btn-primary { background: var(--accent); color: #fff; border: 1px solid var(--accent); }
+    .btn-secondary { background: #fff; color: var(--text); border: 1px solid var(--line); }
+    .btn-dark { background: var(--graphite); color: #fff; border: 1px solid var(--graphite); }
+    .result-box { background: #202124; color: #eef0f3; border-radius: 16px; padding: 16px; overflow: auto; max-height: 520px; font-family: Consolas, Monaco, 'Courier New', monospace; font-size: 13px; line-height: 1.45; white-space: pre; }
+    .hint { color: var(--muted); font-size: 13px; line-height: 1.45; }
+    .notice { background: var(--accent-soft); border: 1px solid rgba(207,79,15,.24); border-left: 5px solid var(--accent); border-radius: 14px; padding: 12px; margin-top: 12px; color: #573019; font-size: 13px; line-height: 1.45; }
+    .preview-card { margin-top: 12px; background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 16px; position: relative; overflow: hidden; }
+    .preview-card:before { content: ''; position: absolute; left: 0; top: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--accent), var(--accent-dark)); }
+    .preview-card h3 { margin: 10px 0 10px; font-size: 18px; }
+    .preview-meta { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 12px; }
+    .preview-actions { display: flex; gap: 8px; margin-top: 12px; }
+    .preview-actions span { flex: 1; text-align: center; border-radius: 12px; padding: 10px; font-weight: 900; font-size: 13px; }
+    .preview-secondary { border: 1px solid var(--line); background: #fff; }
+    .preview-primary { background: var(--accent); color: #fff; }
+    .error-list { display: none; background: #fff0e8; border: 1px solid rgba(157,47,19,.18); color: #8b2d12; border-radius: 14px; padding: 12px; margin-top: 12px; font-size: 13px; line-height: 1.5; }
+    .copy-ok { display: none; color: #177245; font-weight: 900; font-size: 13px; margin-top: 10px; }
+    @media (max-width: 1050px) { .admin-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 720px) { .admin-page { padding: 14px; } .form-grid { grid-template-columns: 1fr; } .id-row { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main class="admin-page">
+    <section class="hero admin-hero">
+      <div class="brandline"><span class="brand-mark">АСКОН</span><span class="brand-caption">Админ-панель</span></div>
+      <h1>Генератор записи для базы знаний BIM</h1>
+      <p>Заполните форму, получите готовый блок для вставки в <b>data.js</b>. Локальный сайт не перезаписывает файл автоматически, но помогает сформировать запись без ошибок в структуре.</p>
+      <div class="admin-nav">
+        <a href="index.html">← Вернуться на сайт</a>
+        <button class="btn-secondary" id="fillExample" type="button">Заполнить пример</button>
+      </div>
+    </section>
+
+    <section class="admin-grid">
+      <section class="admin-card">
+        <h2>Новая запись</h2>
+        <div class="hint">Поля «Краткое описание» и «Сценарий использования» автоматически очищаются от точки в конце, чтобы соответствовать текущему стилю базы.</div>
+
+        <div id="errors" class="error-list"></div>
+
+        <form id="entryForm" class="form-grid" autocomplete="off">
+          <div class="form-field">
+            <label for="section">Раздел *</label>
+            <input id="section" list="sectionListData" placeholder="Например: Renga" required />
+            <datalist id="sectionListData"></datalist>
+          </div>
+
+          <div class="form-field">
+            <label for="subsection">Подраздел *</label>
+            <input id="subsection" list="subsectionListData" placeholder="Например: Полезные ссылки" required />
+            <datalist id="subsectionListData"></datalist>
+          </div>
+
+          <div class="form-field full">
+            <label for="id">ID *</label>
+            <div class="id-row">
+              <input id="id" placeholder="Например: REN-058" required />
+              <button class="small-btn" id="makeId" type="button">Сформировать ID</button>
+            </div>
+          </div>
+
+          <div class="form-field full">
+            <label for="title">Название материала *</label>
+            <input id="title" placeholder="Например: Центр загрузок Renga" required />
+          </div>
+
+          <div class="form-field full">
+            <label for="description">Краткое описание *</label>
+            <textarea id="description" placeholder="Что это за материал" required></textarea>
+          </div>
+
+          <div class="form-field full">
+            <label for="scenario">Сценарий использования *</label>
+            <textarea id="scenario" placeholder="Когда пользователю нужно открыть этот материал" required></textarea>
+          </div>
+
+          <div class="form-field">
+            <label for="type">Тип материала *</label>
+            <input id="type" list="typeListData" placeholder="Например: Инструкция" required />
+            <datalist id="typeListData"></datalist>
+          </div>
+
+          <div class="form-field">
+            <label for="audience">Для кого</label>
+            <input id="audience" list="audienceListData" placeholder="Например: Все сотрудники" />
+            <datalist id="audienceListData"></datalist>
+          </div>
+
+          <div class="form-field full">
+            <label for="keywords">Ключевые слова</label>
+            <input id="keywords" placeholder="Renga, обучение, инструкция, шаблон" />
+          </div>
+
+          <div class="form-field full">
+            <label for="url">Ссылка</label>
+            <input id="url" placeholder="https://... или оставить пустым" />
+          </div>
+
+          <div class="form-field">
+            <label for="status">Статус *</label>
+            <select id="status" required>
+              <option value="Актуально">Актуально</option>
+              <option value="Требует проверки">Требует проверки</option>
+              <option value="Устарело">Устарело</option>
+              <option value="В разработке">В разработке</option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label for="access">Уровень доступа</label>
+            <input id="access" list="accessListData" placeholder="Внутренний доступ" />
+            <datalist id="accessListData"></datalist>
+          </div>
+
+          <div class="form-field">
+            <label for="related">Связанные материалы</label>
+            <input id="related" placeholder="Например: REN-001, REN-002" />
+          </div>
+
+          <div class="form-field">
+            <label for="extraUrl">Доп. ссылка</label>
+            <input id="extraUrl" placeholder="Дополнительная ссылка при необходимости" />
+          </div>
+        </form>
+
+        <div class="admin-actions">
+          <button class="btn-primary" id="generate" type="button">Сформировать запись</button>
+          <button class="btn-secondary" id="copy" type="button">Скопировать блок</button>
+          <button class="btn-secondary" id="download" type="button">Скачать TXT</button>
+          <button class="btn-dark" id="clear" type="button">Очистить форму</button>
+        </div>
+        <div id="copyOk" class="copy-ok">Блок скопирован</div>
+
+        <div class="notice">
+          <b>Как вставить:</b> откройте <b>data.js</b>, найдите конец списка перед <b>];</b>, поставьте запятую после предыдущей записи и вставьте сформированный блок.
+        </div>
+      </section>
+
+      <aside class="admin-card">
+        <h2>Предпросмотр</h2>
+        <div id="preview" class="preview-card"></div>
+
+        <h3>Готовый блок для data.js</h3>
+        <pre id="output" class="result-box">Заполните форму и нажмите «Сформировать запись»</pre>
+      </aside>
+    </section>
+  </main>
+
+  <script src="data.js"></script>
+  <script>
+    const DATA_SOURCE = window.DATA || [];
+    const fields = {
+      id: document.getElementById('id'),
+      section: document.getElementById('section'),
+      subsection: document.getElementById('subsection'),
+      title: document.getElementById('title'),
+      description: document.getElementById('description'),
+      scenario: document.getElementById('scenario'),
+      type: document.getElementById('type'),
+      audience: document.getElementById('audience'),
+      keywords: document.getElementById('keywords'),
+      url: document.getElementById('url'),
+      status: document.getElementById('status'),
+      access: document.getElementById('access'),
+      related: document.getElementById('related'),
+      extraUrl: document.getElementById('extraUrl')
+    };
+    const output = document.getElementById('output');
+    const errors = document.getElementById('errors');
+    const copyOk = document.getElementById('copyOk');
+    const preview = document.getElementById('preview');
+
+    function unique(values) { return [...new Set(values.filter(Boolean).map(v => String(v).trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ru')); }
+    function escapeHtml(text) { return String(text || '').replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
+    function stripFinalDots(value) { return String(value || '').trim().replace(/[.\s]+$/g, ''); }
+    function isRealLink(url) { return /^https?:\/\//i.test(String(url || '').trim()); }
+    function hasDSP(entry) { return Object.values(entry).join(' ').toUpperCase().includes('ДСП'); }
+
+    function fillDatalist(id, values) {
+      document.getElementById(id).innerHTML = values.map(v => `<option value="${escapeHtml(v)}"></option>`).join('');
+    }
+
+    function initDatalists() {
+      fillDatalist('sectionListData', unique(DATA_SOURCE.map(x => x['Раздел'])));
+      fillDatalist('typeListData', unique(DATA_SOURCE.map(x => x['Тип материала'])));
+      fillDatalist('audienceListData', unique(DATA_SOURCE.map(x => x['Для кого'])));
+      fillDatalist('accessListData', unique(DATA_SOURCE.map(x => x['Уровень доступа']).concat(['Внутренний доступ','Внутренний/внешний доступ','ДСП / внутренний доступ'])));
+      refreshSubsections();
+    }
+
+    function refreshSubsections() {
+      const section = fields.section.value.trim();
+      const source = section ? DATA_SOURCE.filter(x => x['Раздел'] === section) : DATA_SOURCE;
+      fillDatalist('subsectionListData', unique(source.map(x => x['Подраздел'])));
+    }
+
+    const prefixMap = {
+      'Корпоративные ресурсы': 'GEN',
+      'Департамент BIM': 'DEP',
+      'Renga': 'REN',
+      'Pilot': 'PIL',
+      'КОМПАС': 'KOM',
+      'Партнеры и конкуренты': 'PAR'
+    };
+    function prefixFromSection(section) {
+      if (prefixMap[section]) return prefixMap[section];
+      const latin = String(section || 'NEW').toUpperCase().replace(/[^A-ZА-ЯЁ0-9]/g, '').slice(0,3);
+      const translit = { 'К':'K','О':'O','М':'M','П':'P','А':'A','С':'S','Р':'R','Е':'E','Н':'N','Г':'G','Д':'D','Т':'T','И':'I','Я':'YA','З':'Z','Л':'L','Ь':'','Ы':'Y','Й':'Y','У':'U','Ц':'C','Ф':'F','В':'V','Б':'B','Ю':'YU','Ч':'CH','Ш':'SH','Щ':'SCH','Х':'H','Ж':'ZH','Э':'E','Ё':'E' };
+      return latin.split('').map(ch => translit[ch] || ch).join('').slice(0,3) || 'NEW';
+    }
+    function makeNextId() {
+      const prefix = prefixFromSection(fields.section.value.trim());
+      const nums = DATA_SOURCE.map(x => String(x['ID'] || '')).filter(id => id.startsWith(prefix + '-')).map(id => Number(id.split('-')[1])).filter(n => Number.isFinite(n));
+      const next = (nums.length ? Math.max(...nums) : 0) + 1;
+      fields.id.value = `${prefix}-${String(next).padStart(3, '0')}`;
+      updatePreview();
+    }
+
+    function buildEntry() {
+      return {
+        'ID': fields.id.value.trim(),
+        'Раздел': fields.section.value.trim(),
+        'Подраздел': fields.subsection.value.trim(),
+        'Название материала': fields.title.value.trim(),
+        'Краткое описание': stripFinalDots(fields.description.value),
+        'Сценарий использования': stripFinalDots(fields.scenario.value),
+        'Тип материала': fields.type.value.trim(),
+        'Для кого': fields.audience.value.trim(),
+        'Ключевые слова': fields.keywords.value.trim(),
+        'Ссылка': fields.url.value.trim(),
+        'Статус': fields.status.value.trim(),
+        'Уровень доступа': fields.access.value.trim(),
+        'Связанные материалы': fields.related.value.trim(),
+        'Доп. ссылка': fields.extraUrl.value.trim()
+      };
+    }
+
+    function validate(entry) {
+      const list = [];
+      ['ID','Раздел','Подраздел','Название материала','Краткое описание','Сценарий использования','Тип материала','Статус'].forEach(k => { if (!entry[k]) list.push(`Заполните поле «${k}»`); });
+      if (entry['ID'] && DATA_SOURCE.some(x => String(x['ID']) === entry['ID'])) list.push(`ID «${entry['ID']}» уже есть в data.js`);
+      if (entry['Ссылка'] && !isRealLink(entry['Ссылка'])) list.push('Ссылка должна начинаться с http:// или https:// либо поле нужно оставить пустым');
+      return list;
+    }
+
+    function generateCode(entry) {
+      return JSON.stringify(entry, null, 2).replace(/^/gm, '  ');
+    }
+
+    function showErrors(list) {
+      if (!list.length) { errors.style.display = 'none'; errors.innerHTML = ''; return; }
+      errors.style.display = 'block';
+      errors.innerHTML = '<b>Нужно исправить:</b><br>' + list.map(x => `• ${escapeHtml(x)}`).join('<br>');
+    }
+
+    function updatePreview() {
+      const e = buildEntry();
+      const dsp = hasDSP(e) ? '<span class="tag tag-dsp">ДСП</span>' : '';
+      const linkState = isRealLink(e['Ссылка']) ? '<span class="preview-primary">Открыть ссылку</span>' : '<span class="preview-secondary">Ссылка не добавлена</span>';
+      preview.innerHTML = `
+        <h3>${escapeHtml(e['Название материала'] || 'Название материала')}</h3>
+        <div class="preview-meta">
+          <span class="tag tag-section"><span class="tag-label">Раздел:</span> ${escapeHtml(e['Раздел'] || '—')}</span>
+          <span class="tag tag-subsection"><span class="tag-label">Подраздел:</span> ${escapeHtml(e['Подраздел'] || '—')}</span>
+          <span class="tag tag-type"><span class="tag-label">Тип:</span> ${escapeHtml(e['Тип материала'] || '—')}</span>
+          <span class="tag tag-status ${e['Статус'] === 'Актуально' ? 'status-actual' : e['Статус'] === 'Требует проверки' ? 'status-check' : e['Статус'] === 'Устарело' ? 'status-old' : ''}"><span class="tag-label">Статус:</span> ${escapeHtml(e['Статус'] || '—')}</span>
+          ${dsp}
+        </div>
+        <div class="scenario"><strong>Когда использовать:</strong><br>${escapeHtml(e['Сценарий использования'] || '—')}</div>
+        <div class="preview-actions"><span class="preview-secondary">Подробнее</span>${linkState}</div>
+      `;
+    }
+
+    function generate() {
+      const entry = buildEntry();
+      const list = validate(entry);
+      showErrors(list);
+      if (list.length) return null;
+      const code = generateCode(entry);
+      output.textContent = code;
+      updatePreview();
+      return code;
+    }
+
+    async function copyCode() {
+      const code = generate() || output.textContent;
+      if (!code || code.includes('Заполните форму')) return;
+      try {
+        await navigator.clipboard.writeText(code);
+      } catch (e) {
+        const temp = document.createElement('textarea');
+        temp.value = code;
+        document.body.appendChild(temp);
+        temp.select();
+        document.execCommand('copy');
+        temp.remove();
+      }
+      copyOk.style.display = 'block';
+      setTimeout(() => copyOk.style.display = 'none', 1600);
+    }
+
+    function downloadTxt() {
+      const code = generate() || output.textContent;
+      if (!code || code.includes('Заполните форму')) return;
+      const blob = new Blob([code], { type: 'text/plain;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = (fields.id.value.trim() || 'new_entry') + '.txt';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    function clearForm() {
+      document.getElementById('entryForm').reset();
+      fields.status.value = 'Актуально';
+      fields.access.value = 'Внутренний доступ';
+      output.textContent = 'Заполните форму и нажмите «Сформировать запись»';
+      showErrors([]);
+      updatePreview();
+    }
+
+    function fillExample() {
+      fields.section.value = 'Renga';
+      refreshSubsections();
+      fields.subsection.value = 'Полезные ссылки';
+      makeNextId();
+      fields.title.value = 'Новый справочный материал Renga';
+      fields.description.value = 'Справочный материал по работе с Renga';
+      fields.scenario.value = 'Открывать при поиске дополнительных материалов по Renga';
+      fields.type.value = 'Справочный материал';
+      fields.audience.value = 'BIM-специалисты, технические специалисты, пользователи Renga';
+      fields.keywords.value = 'Renga, справка, материал, BIM';
+      fields.url.value = 'https://example.com';
+      fields.status.value = 'Актуально';
+      fields.access.value = 'Внутренний/внешний доступ';
+      fields.related.value = '';
+      fields.extraUrl.value = '';
+      updatePreview();
+      generate();
+    }
+
+    Object.values(fields).forEach(el => el.addEventListener('input', updatePreview));
+    fields.section.addEventListener('input', refreshSubsections);
+    document.getElementById('makeId').addEventListener('click', makeNextId);
+    document.getElementById('generate').addEventListener('click', generate);
+    document.getElementById('copy').addEventListener('click', copyCode);
+    document.getElementById('download').addEventListener('click', downloadTxt);
+    document.getElementById('clear').addEventListener('click', clearForm);
+    document.getElementById('fillExample').addEventListener('click', fillExample);
+
+    initDatalists();
+    clearForm();
+  </script>
+</body>
+</html>
