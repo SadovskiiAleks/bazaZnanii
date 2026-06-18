@@ -22,9 +22,7 @@
 body {
   margin: 0;
   font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-  background:
-    radial-gradient(circle at 12% 0%, rgba(207, 79, 15, 0.12) 0, rgba(207, 79, 15, 0) 32%),
-    linear-gradient(180deg, #ffffff 0%, var(--bg) 330px, var(--bg) 100%);
+  background: var(--bg);
   color: var(--text);
 }
 a { color: var(--accent); text-decoration: none; }
@@ -143,17 +141,23 @@ button { cursor: pointer; font-weight: 800; }
 .view-btn:hover { background: #f7f7f8; transform: translateY(-1px); }
 .view-btn.active { background: var(--accent); color: #fff; }
 
-.summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin: 16px 0 22px; }
-.metric {
+.summary { width: 100%; margin: 12px 0 18px; }
+.metrics-panel {
+  width: 100%;
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  padding: 18px;
+  padding: 10px 22px 10px 28px;
   box-shadow: var(--shadow-soft);
   position: relative;
   overflow: hidden;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 22px;
+  min-height: 56px;
 }
-.metric:before {
+.metrics-panel:before {
   content: "";
   position: absolute;
   left: 0;
@@ -162,8 +166,30 @@ button { cursor: pointer; font-weight: 800; }
   width: 5px;
   background: var(--accent);
 }
-.metric .num { font-size: 28px; font-weight: 900; margin-bottom: 4px; color: var(--graphite); }
-.metric .label { color: var(--muted); font-size: 13px; }
+.metric {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+  text-align: left;
+  white-space: nowrap;
+}
+.metric-divider {
+  width: 1px;
+  height: 28px;
+  background: var(--line);
+  flex: 0 0 auto;
+}
+.metric .num {
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--graphite);
+  line-height: 1;
+}
+.metric .label {
+  color: var(--muted);
+  font-size: 13px;
+}
 .layout { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 18px; align-items: start; }
 .layout > section { min-width: 0; }
 .side {
@@ -383,7 +409,6 @@ button { cursor: pointer; font-weight: 800; }
   .toolbar { grid-template-columns: 1fr 1fr; }
   .layout { grid-template-columns: 1fr; }
   .side { position: static; }
-  .summary { grid-template-columns: repeat(2, 1fr); }
   .grid { grid-template-columns: 1fr; }
   .list-card { grid-template-columns: 1fr; }
   .list-side-actions { margin-top: 8px; }
@@ -393,15 +418,22 @@ button { cursor: pointer; font-weight: 800; }
   .page { padding: 14px; }
   .hero { padding: 24px; }
   .hero h1 { font-size: 25px; }
-  .toolbar, .summary { grid-template-columns: 1fr; }
+  .toolbar { grid-template-columns: 1fr; }
+  .metrics-panel {
+    flex-wrap: wrap;
+    gap: 10px 16px;
+    padding: 10px 16px 10px 22px;
+  }
+  .metric-divider { display: none; }
+  .metric { white-space: normal; }
   .detail-grid { grid-template-columns: 1fr; }
   .brandline { align-items: flex-start; flex-direction: column; gap: 8px; }
 }
 @media print {
   .toolbar, .side, .actions, .footer, .close { display: none !important; }
   body { background: #fff; }
-  .layout, .grid, .summary { display: block; }
-  .card, .metric, .hero { box-shadow: none; break-inside: avoid; margin-bottom: 12px; }
+  .layout, .grid { display: block; }
+  .card, .metrics-panel, .hero { box-shadow: none; break-inside: avoid; margin-bottom: 12px; }
   .hero { color: #000; background: #fff; border: 1px solid #ddd; }
   .hero p { color: #333; }
   .brand-mark { border: 1px solid #ddd; color: #000; box-shadow: none; }

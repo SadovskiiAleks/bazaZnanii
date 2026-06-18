@@ -98,9 +98,9 @@ function setViewMode(view) {
 function initFilters() {
   const sections = unique(DATA.map(x => x['Раздел']));
   const types = unique(DATA.map(x => x['Тип материала']));
-  byId('sectionCount').textContent = sections.length;
+  if (byId('sectionCount')) byId('sectionCount').textContent = sections.length;
   byId('totalCount').textContent = DATA.length;
-  byId('checkCount').textContent = DATA.filter(x => (x['Статус'] || '').toLowerCase().includes('провер')).length;
+  if (byId('checkCount')) byId('checkCount').textContent = DATA.filter(x => (x['Статус'] || '').toLowerCase().includes('провер')).length;
 
   for (const section of sections) byId('sectionFilter').insertAdjacentHTML('beforeend', `<option value="${safe(section)}">${safe(section)}</option>`);
   for (const type of types) byId('typeFilter').insertAdjacentHTML('beforeend', `<option value="${safe(type)}">${safe(type)}</option>`);
@@ -193,7 +193,7 @@ function render() {
   } else if (state.favoritesOnly) {
     byId('contentSub').textContent = 'Показаны только материалы, добавленные в избранное на этом ПК.';
   } else if (state.subsection) {
-    byId('contentSub').textContent = `Раздел: ${state.section || 'Все разделы'} · подраздел: ${state.subsection}`;
+    byId('contentSub').textContent = `Раздел: ${state.section || 'Все разделы'} · Подраздел: ${state.subsection}`;
   } else if (state.section) {
     byId('contentSub').textContent = `Выбран раздел «${state.section}». При необходимости выберите подраздел слева или в верхнем фильтре.`;
   } else {
