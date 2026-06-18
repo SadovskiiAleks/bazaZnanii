@@ -35,7 +35,7 @@
           <option value="В разработке">В разработке</option>
         </select>
         <select id="sortFilter" aria-label="Сортировка материалов">
-          <option value="default">Сортировка: исходный порядок</option>
+          <option value="default">По-умолчанию</option>
           <option value="title">По названию А–Я</option>
           <option value="section">По разделу и подразделу</option>
           <option value="type">По типу материала</option>
@@ -46,10 +46,11 @@
     </section>
 
     <section class="summary">
-      <div class="metric"><div class="num" id="totalCount">0</div><div class="label">Всего материалов</div></div>
-      <div class="metric"><div class="num" id="visibleCount">0</div><div class="label">Показано сейчас</div></div>
-      <div class="metric"><div class="num" id="sectionCount">0</div><div class="label">Разделов</div></div>
-      <div class="metric"><div class="num" id="checkCount">0</div><div class="label">Требуют проверки</div></div>
+      <div class="metrics-panel">
+        <div class="metric"><span class="label">Всего материалов:</span><span class="num" id="totalCount">0</span></div>
+        <div class="metric-divider" aria-hidden="true"></div>
+        <div class="metric"><span class="label">Показано сейчас:</span><span class="num" id="visibleCount">0</span></div>
+      </div>
     </section>
 
     <section class="layout">
@@ -79,7 +80,7 @@
     <footer class="footer">
       <div>Сформировано на основе базы знаний Департамента BIM. Для обновления материалов обратитесь к специалисту. Версия 1.0</div>
       <div class="admin-footer-link"><a href="admin.html">Админ-панель генерации записи</a></div>
-      <div class="developer-signature">© kartashov_ma 2026 ©</div>
+      <div class="developer-signature">© Разработано kartashov_ma, 2026 ©</div>
     </footer>
   </main>
 
