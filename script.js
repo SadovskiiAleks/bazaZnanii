@@ -227,12 +227,14 @@ function renderTileCard(x) {
     ${renderFavoriteButton(x, 'card-favorite')}
     <div class="card-status pill ${statusClass(x['Статус'])}"><span class="tag-label">Статус:</span> ${safe(x['Статус'])}</div>
     <h3>${safe(x['Название материала'])}</h3>
+    <!--
     <div class="meta meta-structured">
       <span class="tag tag-section"><span class="tag-label">Раздел:</span> ${safe(x['Раздел'])}</span>
       <span class="tag tag-subsection"><span class="tag-label">Подраздел:</span> ${safe(x['Подраздел'])}</span>
       <span class="tag tag-type"><span class="tag-label">Тип:</span> ${safe(x['Тип материала'])}</span>
-      ${dspBadge}
     </div>
+    -->
+    ${dspBadge ? `<div class="meta meta-structured">${dspBadge}</div>` : ''}
     <div class="scenario"><strong>Когда использовать:</strong><br>${safe(x['Сценарий использования'])}</div>
     <div class="actions">
       <button class="secondary" onclick='openDetails(${jsLiteral(x['ID'])})'>Подробнее</button>
